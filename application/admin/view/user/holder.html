@@ -1,0 +1,82 @@
+{extend name="template/base" /}
+{block name="content"}
+<div class="page-container">
+    <form class="mb-20" method="get" action="{:\\think\\Url::build($Request.action)}">
+        <input type="text" class="input-text" style="width:250px" style="width:250px;"  placeholder="股东名称" name="realname" value="{$Request.param.realname}" >
+        <input type="text" class="input-text" style="width:250px" placeholder="手机号" name="mobile" value="{$Request.param.mobile}" >
+        <button type="submit" class="btn btn-success"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+    </form>
+    <table class="table table-border table-bordered table-hover table-bg mt-20">
+        <thead>
+        <tr class="text-c">
+            <th width="25"><input type="checkbox"></th>
+            <th width="">股东名称</th>
+            <th width="">手机号</th>
+            <th width="">性别</th>
+            <th width="">用户金额</th>
+            <th width="">备注</th>
+            <th width="">创建时间</th>
+            <th width="70">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="list" id="vo"}
+        <tr class="text-c">
+            <td><input type="checkbox" name="id[]" value="{$vo.id}"></td>
+            <td>{$vo.username}</td>
+            <td>{$vo.mobile}</td>
+            <td>{if condition="$vo.sex eq 0"}男{else}女{/if}</td>
+            <td>{$vo.money}</td>
+            <td>{$vo.record}</td>
+            <td>{:date('Y-m-d',$vo.createtime)}</td>
+            <td class="f-14">
+                <a href="javascript:;" onclick="setChoose(this)" dat="{$vo.id}" dat2="{$vo.username}" class="btn btn-danger radius ml-5"><i class="Hui-iconfont">&#xe6e2;</i> 选择</a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page-bootstrap">{$page ?? ''}</div>
+</div>
+{/block}
+{block name='script'}
+<script>
+    function del(even){
+        var id = $(even).attr('name');
+        var loading = layer.load(3, {shade: [0.8, '#393D49']});
+        layer.confirm('确定删除？', {
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            $.ajax({
+                url:"{:url('del')}",
+                type:'get',
+                dataType:'json',
+                data:{
+                    id:id
+                },
+                success:function(msg){
+                    console.log(msg);
+                    layer.close(loading);
+                    layer.msg('删除成功', {icon: 1,time:2000});
+                    window.location.reload();
+                },
+                error:function(err){
+                    alert('网络连接错误');
+                    window.location.reload();
+                }
+            });
+        }, function(){
+            layer.close(loading);
+        });
+    }
+    function setChoose(even){
+        var id = $(even).attr('dat');
+        var name = $(even).attr('dat2');
+        window.parent.setChoose(id,name);
+        window.parent.layer.close(parent.layer.getFrameIndex(window.name));
+    }
+
+
+</script>
+{/block}
+

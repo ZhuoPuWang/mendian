@@ -1,0 +1,94 @@
+{extend name="template/base" /}
+{block name="content"}
+<div class="page-container">
+    <form class="form form-horizontal" id="form" method="post" action="{:\\think\\Request::instance()->baseUrl()}">
+        <input type="hidden" class="input-text" name="id" value="{$user.id}" >
+        <input type="hidden" class="input-text" name="uid" value="{$user.uid}" >
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">用户姓名：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text"  readonly="readonly" value="{$user.username}">
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">收货人：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text" placeholder="手机号" name="mobile" value="{$user.mobile}" >
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">所属股东：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text"  readonly="readonly" value="{$user.sname}">
+                <input type="hidden" class="input-text" name="son_id" value="{$user.sid}" >
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">选择商品：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <table border="1" id ="table">
+                    {volist name = "$user['goods']" id= "vo"}
+                    <tr>
+                        <td style='display: none;text-align: center'><input style='border: none' type='text' name='goodsId[]' value='{$vo->goodsId}'></td>
+                        <td style='display: none;text-align: center'><input style='border: none' type='text' name='goodsExtra[]' value='{$vo->goodsExtra}'></td>
+                        <td><input style='border: none;text-align: center' type='text' name='goodsSname[]' value='{$vo->goodsSname}'></td>
+                        <td><input style='border: none;text-align: center' type='text' name='goodsPrice[]' value='{$vo->goodsPrice}'>元</td>
+                        <td><input style='border: none;text-align: center' type='text' name='goodsNum[]' value='{$vo->goodsNum}'>件</td>
+                        <td><a href='javascript:;' onclick='del(this)' name='' class='btn btn-danger radius ml-5'><i class='Hui-iconfont'>&#xe6e2;</i> 删除</a></td>
+                    </tr>
+                    {/volist}
+                </table>
+                <tr>
+                    <td><a href="javascript:open();" class="btn btn-success radius ml-5"><i class="Hui-iconfont">&#xe615;</i> 添加商品</a></td>
+                </tr>
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <button type="submit" class="btn btn-primary radius">&nbsp;&nbsp;提交&nbsp;&nbsp;</button>
+                <button type="button" class="btn btn-default radius ml-20" onClick="layer_close();">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+            </div>
+        </div>
+    </form>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__LIB__/Validform/5.3.2/Validform.min.js"></script>
+<script>
+    $(function () {
+        $('.skin-minimal input').iCheck({
+            checkboxClass: 'icheckbox-blue',
+            radioClass: 'iradio-blue',
+            increaseArea: '20%'
+        });
+
+        $("#form").Validform({
+            tiptype: 2,
+            ajaxPost: true,
+            showAllError: true,
+            callback: function (ret){
+                ajax_progress(ret);
+            }
+        });
+    })
+
+    function open(){
+        layer_open('选择商品',"{:url('User/goods',false,true)}");
+    }
+
+    function setChoose(id,name,price,extra){
+        var tr = "<tr><td style='display: none;text-align: center'><input style='border: none' type='text' name='goodsId[]' value='"+id+"'></td><td style='display: none;text-align: center'><input style='border: none' type='text' name='goodsExtra[]' value='"+extra+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsSname[]' value='"+name+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsPrice[]' value='"+price+"'>元</td><td><input style='border: none;text-align: center' type='text' name='goodsNum[]' value='1'>件</td><td><a href='javascript:;' onclick='del(this)' name='' class='btn btn-danger radius ml-5'><i class='Hui-iconfont'>&#xe6e2;</i> 删除</a></td></tr>";
+        $('#table').append(tr);
+    }
+
+    function del(even){
+        $(even).parents("tr").remove();
+    }
+</script>
+{/block}

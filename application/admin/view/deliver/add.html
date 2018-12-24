@@ -1,0 +1,173 @@
+{extend name="template/base" /}
+{block name="content"}
+<style>
+    td{border: 1px solid #ccc;}
+</style>
+<div style="height: 50px;"></div>
+<div class="page-container">
+    <div class="form form-horizontal">
+        <input type="hidden" class="input-text" name="uid" value="{$user.id ?? ''}" >
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">用户姓名：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text" name="username" id="username"   value="{$user.username  ?? ''}" datatype ="*" nullmsg="请填写用户姓名">
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">收货人：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text" placeholder="手机号" id="mobile"  name="mobile" value="{$user.mobile  ?? ''}" >
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">股东：</label>
+            <div class="formControls col-xs-6 col-sm-6" id = "holder">
+                <a id = "chooseholder" href="javascript:openholder();" class="btn btn-success radius ml-5"><i class="Hui-iconfont">&#xe615;</i> 选择股东</a>
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">选择商品：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <table  id ="table">
+                </table>
+                <tr>
+                    <td><a href="javascript:open();" class="btn btn-success radius ml-5"><i class="Hui-iconfont">&#xe615;</i> 添加商品</a></td>
+                </tr>
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <button type="submit" class="btn btn-primary radius"  onclick="submit()">&nbsp;&nbsp;提交&nbsp;&nbsp;</button>
+                <button type="button" class="btn btn-default radius ml-20" onClick="layer_close();">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__LIB__/Validform/5.3.2/Validform.min.js"></script>
+<script>
+    $(function () {
+        $('.skin-minimal input').iCheck({
+            checkboxClass: 'icheckbox-blue',
+            radioClass: 'iradio-blue',
+            increaseArea: '20%'
+        });
+
+        $("#form").Validform({
+            tiptype: 2,
+            ajaxPost: true,
+            showAllError: true,
+            callback: function (ret){
+                ajax_progress(ret);
+            }
+        });
+    })
+
+    function open(){
+        layer_open('选择商品',"{:url('User/goods',false,true)}");
+    }
+
+    function setChoose(id,name,price,extra){
+        var tr = "<tr><td style='display: none;text-align: center'  class='ids' currentId='"+id+"'></td><td style='display: none;text-align: center'><input style='border: none' type='text' class='goodsExtra' name='goodsExtra[]' value='"+extra+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsSname[]' class='goodsSname' value='"+name+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsPrice[]' class='goodsPrice' value='"+price+"'>元</td><td><input style='border: none;text-align: center' type='text' name='goodsNum[]' class='goodsNum' value='1'>件</td><td style='border:0;'><a href='javascript:;' onclick='del(this)' class='btn btn-danger radius ml-5'><i class='Hui-iconfont'>&#xe6e2;</i> 删除</a></td></tr>";
+        $('#table').append(tr);
+
+    }
+
+    function del(even){
+        $(even).parents("tr").remove();
+    }
+
+    function setChooseholder(id,name,price,extra){
+        var tr = "<input type='text' class='input-text' value='"+name+"'><input type='hidden' class='input-text' id='son_id' name='son_id' value='"+id+"'>";
+        $('#chooseholder').css('display','none');
+        $('#holder').append(tr);
+    }
+
+    function openholder(){
+        layer_open('选择商品',"{:url('deliver/holder',false,true)}");
+    }
+
+    function submit(){
+        layer.confirm('请柜员确认客户有余额或者已付款！', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            submit1();
+        }, function(){
+            layer.msg('取消成功', {icon: 1});
+        });
+    }
+
+    function submit1(){
+
+
+        var username = $('#username').val();
+        var uid = $('#uid').val();
+        var mobile = $('#mobile').val();
+        var son_id = $('#son_id').val();
+        var goodsId = $('.ids');
+        var goodsid = [];
+        for(var i=0; i<goodsId.length; i++){
+            goodsid.push($(goodsId[i]).attr('currentId'));
+        }
+        var goodsExtra = $('.goodsExtra');
+        var goodsextra = [];
+        for(var i=0; i<goodsExtra.length; i++){
+            goodsextra.push($(goodsExtra[i]).val());
+        }
+        var goodsSname = $('.goodsSname');
+        var goodssname = [];
+        for(var i=0; i<goodsSname.length; i++){
+            goodssname.push($(goodsSname[i]).val());
+        }
+        var goodsPrice = $('.goodsPrice');
+        var goodsprice = [];
+        for(var i=0; i<goodsPrice.length; i++){
+            goodsprice.push($(goodsPrice[i]).val());
+        }
+
+        var goodsNum = $('.goodsNum');
+        var goodsnum = [];
+        for(var i=0; i<goodsNum.length; i++){
+            goodsnum.push($(goodsNum[i]).val());
+        }
+        $.ajax({
+            url:"{:url('add')}",
+            type:'post',
+            dataType:'json',
+            data:{
+                uid:uid,
+                username:username,
+                mobile:mobile,
+                son_id:son_id,
+                goodsId:goodsid,
+                goodsExtra:goodsextra,
+                goodsSname:goodssname,
+                goodsPrice:goodsprice,
+                goodsNum:goodsnum,
+            },
+            success:function(msg){
+                console.log(msg);
+                if(msg.state == 1){
+                    layer.msg(msg.data, {icon: 5,time:2000});
+                }else{
+                    layer.msg(msg.data);
+
+                    window.parent.location.reload();
+                }
+
+            },
+            error:function(err){
+                alert('网络连接错误');
+                window.location.reload();
+            }
+        });
+    }
+</script>
+{/block}

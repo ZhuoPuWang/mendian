@@ -1,0 +1,11 @@
+<form class="mb-20" method="get" action="{:\\think\\Url::build($Request.action)}">
+    <input type="text" class="input-text" style="width:250px;"style="float: left;width: 30%"  placeholder="商品名称" name="realname" value="{$Request.param.realname}" >
+    <!--<input type="text" class="input-text" style="width:250px" placeholder="分类名称" name="mobile" value="{$Request.param.mobile}" >-->
+    <select name="type" id="select" class="select-box"  onchange="sort(this)" style="float: left;width: 30%" >
+        <option value="0" >请选择商品分类</option>
+    </select>
+    <select name="stype" id="selectson" class="select-box" style="float: left;width: 30%">
+        <option value="0" id ="optione">请选择商品二级分类</option>
+    </select>
+    <button type="submit" class="btn btn-success"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+</form>

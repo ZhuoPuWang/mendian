@@ -1,0 +1,147 @@
+{extend name="template/base" /}
+{block name="content"}
+<style>
+    td{border: 1px solid #ccc;}
+</style>
+<div class="page-container">
+    <div class="form form-horizontal" >
+        <input type="hidden" class="input-text" id="uid" name="uid" value="{$user.id}" >
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">用户姓名：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text" id="username" name="username"  readonly="readonly" value="{$user.username}">
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">收货人：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text" placeholder="手机号" id="mobile" name="mobile" value="{$user.mobile}" >
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">所属股东：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <input type="text" class="input-text"  readonly="readonly" value="{$user.sname}">
+                <input type="hidden" class="input-text" name="son_id" id="son_id"  value="{$user.sid}" >
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+        <div class="row cl">
+            <label class="form-label col-xs-3 col-sm-3">选择商品：</label>
+            <div class="formControls col-xs-6 col-sm-6">
+                <table  id ="table">
+                </table>
+                <tr>
+                    <td><a href="javascript:open();" class="btn btn-success radius ml-5"><i class="Hui-iconfont">&#xe615;</i> 添加商品</a></td>
+                </tr>
+            </div>
+            <div class="col-xs-3 col-sm-3"></div>
+        </div>
+
+
+        <div class="row cl">
+            <div class="col-xs-8 col-sm-9 col-xs-offset-4 col-sm-offset-3">
+                <button type="button" class="btn btn-primary radius" onclick="submit()" >&nbsp;&nbsp;提交&nbsp;&nbsp;</button>
+                <button type="button" class="btn btn-default radius ml-20" onClick="layer_close();">&nbsp;&nbsp;取消&nbsp;&nbsp;</button>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__LIB__/Validform/5.3.2/Validform.min.js"></script>
+<script>
+
+
+    function open(){
+        layer_open('选择商品',"{:url('User/goods',false,true)}");
+    }
+
+    function setChoose(id,name,price,extra){
+        var tr = "<tr><td style='display: none;text-align: center'  class='ids' currentId='"+id+"'></td><td style='display: none;text-align: center'><input style='border: none' type='text' class='goodsExtra' name='goodsExtra[]' value='"+extra+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsSname[]' class='goodsSname' value='"+name+"'></td><td><input style='border: none;text-align: center' type='text' name='goodsPrice[]' class='goodsPrice' value='"+price+"'>元</td><td><input style='border: none;text-align: center' type='text' name='goodsNum[]' class='goodsNum' value='1'>件</td><td style='border:0;'><a href='javascript:;' onclick='del(this)' class='btn btn-danger radius ml-5'><i class='Hui-iconfont'>&#xe6e2;</i> 删除</a></td></tr>";
+        $('#table').append(tr);
+
+    }
+
+    function del(even){
+        $(even).parents("tr").remove();
+    }
+
+    function submit(){
+        layer.confirm('请柜员确认客户有余额或者已付款！', {
+            btn: ['确认','取消'] //按钮
+        }, function(){
+            submit1();
+        }, function(){
+            layer.msg('取消成功', {icon: 1});
+        });
+    }
+
+    function submit1(){
+        var username = $('#username').val();
+        var uid = $('#uid').val();
+        var mobile = $('#mobile').val();
+        var son_id = $('#son_id').val();
+        var goodsId = $('.ids');
+        var goodsid = [];
+        for(var i=0; i<goodsId.length; i++){
+            goodsid.push($(goodsId[i]).attr('currentId'));
+        }
+        var goodsExtra = $('.goodsExtra');
+        var goodsextra = [];
+        for(var i=0; i<goodsExtra.length; i++){
+            goodsextra.push($(goodsExtra[i]).val());
+        }
+        var goodsSname = $('.goodsSname');
+        var goodssname = [];
+        for(var i=0; i<goodsSname.length; i++){
+            goodssname.push($(goodsSname[i]).val());
+        }
+        var goodsPrice = $('.goodsPrice');
+        var goodsprice = [];
+        for(var i=0; i<goodsPrice.length; i++){
+            goodsprice.push($(goodsPrice[i]).val());
+        }
+        console.log(goodsprice);
+        var goodsNum = $('.goodsNum');
+        var goodsnum = [];
+        for(var i=0; i<goodsNum.length; i++){
+            goodsnum.push($(goodsNum[i]).val());
+        }
+        $.ajax({
+            url:"{:url('deliver')}",
+            type:'post',
+            dataType:'json',
+            data:{
+                uid:uid,
+                username:username,
+                mobile:mobile,
+                son_id:son_id,
+                goodsId:goodsid,
+                goodsExtra:goodsextra,
+                goodsSname:goodssname,
+                goodsPrice:goodsprice,
+                goodsNum:goodsnum,
+            },
+            success:function(msg){
+               if(msg.state == 1){
+                   layer.msg(msg.data, {icon: 5,time:2000});
+               }else{
+                   layer.msg(msg.data);
+
+                   window.parent.location.reload();
+               }
+
+            },
+            error:function(err){
+                alert('网络连接错误');
+                window.location.reload();
+            }
+        });
+    }
+
+
+</script>
+{/block}

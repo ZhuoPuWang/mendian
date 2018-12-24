@@ -1,0 +1,9 @@
+<td><input type="checkbox" name="id[]" value="{$vo.id}"></td>
+<td>{$vo.id|high_light=$Request.param.id}</td>
+<td>{$vo.username ?? '散户订单'}</td>
+<td>{$vo.mobile}</td>
+<td>{$vo.susername ?? '散户订单'}</td>
+<td>{$vo.price}</td>
+<td>{if $vo.type == '1'}柜员确认{else}系统扣款{/if}</td>
+<td>{$vo.sprice}</td>
+<td>{:date('Y-m-d',$vo.createtime)}</td>

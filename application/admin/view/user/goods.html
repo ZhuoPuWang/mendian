@@ -1,0 +1,115 @@
+{extend name="template/base" /}
+{block name="content"}
+<div class="page-container">
+    <form class="mb-20" method="get" action="{:\\think\\Url::build($Request.action)}">
+        <input type="text" class="input-text" style="width:250px;"style="float: left;width: 30%"  placeholder="商品名称" name="realname" value="{$Request.param.realname}" >
+        <!--<input type="text" class="input-text" style="width:250px" placeholder="分类名称" name="mobile" value="{$Request.param.mobile}" >-->
+        <select name="type" id="select" class="select-box"  onchange="sort(this)" style="float: left;width: 30%" >
+            <option value="0" >请选择商品分类</option>
+        </select>
+        <select name="stype" id="selectson" class="select-box" style="float: left;width: 30%">
+            <option value="0" id ="optione">请选择商品二级分类</option>
+        </select>
+        <button type="submit" class="btn btn-success"><i class="Hui-iconfont">&#xe665;</i> 搜索</button>
+    </form>
+    <div class="cl pd-5 bg-1 bk-gray">
+        <span class="l" {if condition="$_SESSION['think']['auth_id'] neq 1";} style="display: none;" {/if}>
+            {tp:menu menu="add" /}
+        </span>
+    </div>
+    <table class="table table-border table-bordered table-hover table-bg mt-20">
+        <thead>
+        <tr class="text-c">
+            <th width="">ID</th>
+            <th width="">商品名称</th>
+            <th width="">商品价格（元）</th>
+            <th width="">商品库存</th>
+            <th width="">股东分成</th>
+            <th width="">所属上级</th>
+            <th width="70">操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {volist name="list" id="vo"}
+        <tr class="text-c">
+            <td>{$vo.id}</td>
+            <td>{$vo.name}</td>
+            <td>{$vo.price}</td>
+            <td>{$vo.stork}</td>
+            <td>{$vo.extra}</td>
+            <td>{$vo.tname}</td>
+            <td class="f-14">
+              <a href="javascript:;" onclick="setChoose(this)" dat="{$vo.id}" dat2="{$vo.name}" dat3="{$vo.price}" dat4="{$vo.extra}" class="btn btn-danger radius ml-5"><i class="Hui-iconfont">&#xe6e2;</i> 选择</a>
+            </td>
+        </tr>
+        {/volist}
+        </tbody>
+    </table>
+    <div class="page-bootstrap">{$page ?? ''}</div>
+</div>
+{/block}
+
+{block name='script'}
+<script type="text/javascript" src="__LIB__/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="__LIB__/layer/2.4/layer.js"></script>
+<script>
+
+    function setChoose(even){
+        var id = $(even).attr('dat');
+        var name = $(even).attr('dat2');
+        var price = $(even).attr('dat3');
+        var extra = $(even).attr('dat4');
+        window.parent.setChoose(id,name,price,extra);
+        window.parent.layer.close(parent.layer.getFrameIndex(window.name));
+    }
+
+
+    $(function(){
+        $.ajax({
+            url:'{:url("sort")}',
+            type:'get',
+            dataType:'json',
+            data:'',
+            success:function(msg){
+                var data = msg.data;
+                for(var i =0;i<data.length;i++){
+                    var option = "<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+                    $("#select").append(option);
+                }
+            },
+            error:function(err){
+                alert('网络连接错误');
+            }
+        });
+    })
+
+    function sort(even){
+        $('.aa').removeClass("hidden");
+        var id= $(even).val();
+        $("#selectson").find('option').remove();
+        $.ajax({
+            url:'{:url("sortSon")}',
+            type:'get',
+            dataType:'json',
+            data:{
+                'id':id
+            },
+            success:function(msg){
+                var data = msg.data;
+                var option ="<option value='0'>请选择商品二级分类</option>"+option;
+
+                for(var i =0;i<data.length;i++){
+                    option = option+"<option value='"+data[i].id+"'>"+data[i].name+"</option>";
+
+                }
+                $("#selectson").append(option);
+            },
+            error:function(err){
+                alert('网络连接错误');
+            }
+        });
+    }
+
+</script>
+{/block}
+
